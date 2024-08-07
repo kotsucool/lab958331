@@ -1,12 +1,25 @@
-let http = require('http');
-let url = require('url');
-http.createServer(function (req, res) {
-res.writeHead(200, {'Content-Type': 'text/html'});
-/*Use the url module to turn the querystring into an object:*/
-var q = url.parse(req.url, true).query;
-/*Return the year and month from the query object:*/
+const express = require('express');
+const WebSocket = require('ws');
 
-var txt = "Name:" + q.name + "<br/> " + "Login Date:" + q.month + " " + q.date + ", " + q.year;
+const app = express();
+const wss = new WebSocket.Server({ port: 8080 });
 
-res.end(txt);
-}).listen(9999);
+wss.on('connection', (ws) => {
+    console.log('A new client connected.');
+    ws.on('message', (message) => {
+        console.log('Received message:', message.toString());
+        wss.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(message.toString());
+            }
+        });
+    });
+    ws.on('close', () => {
+        console.log('A client disconnected.');
+    });
+});
+
+const port = 3000;
+app.listen(port, () => {
+    console.log(`Server started on http://localhost:${port}`);
+});

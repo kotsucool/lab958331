@@ -1,23 +1,32 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <title>Real-Time Chat</title>
+</head>
 <body>
-<h1>Chapter1: HTML5 Canvas and JavaScript</h1>
+    <h1>Real-Time Chat</h1>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" />
+    <button onclick="sendMessage()">Send</button>
 
-<style>
-#myCanvas {
-	background: #00b4ff;
-}
-body {
-	margin: 0;
-}
-</style>
+<script>
+    const socket = new WebSocket('ws://localhost:8080');
 
-<canvas id="myCanvas" width="200" height="100" style="border:1px solid black;">
-Sorry, your browser does not support canvas.
-</canvas>
+    socket.addEventListener('open', () => {
+        console.log('Connected to WebSocket server.');
+    });
 
-<script src="bubble.js"></script>
+    socket.addEventListener('message', (event) => {
+        const messagesDiv = document.getElementById('messages');
+    messagesDiv.innerHTML += `<p>${event.data.toString()}</p>`;
+    });
+
+    function sendMessage() {
+        const messageInput = document.getElementById('messageInput');
+        const message = messageInput.value;
+        socket.send(message);
+        messageInput.value = '';
+    }
+    </script>
 </body>
 </html>
-
-
